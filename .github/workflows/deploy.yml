@@ -32,10 +32,6 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y docker-ce
 
-    - name: Build Docker image
-      run: |
-        docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/flask-api:latest .
-
     - name: Authenticate with GCP
       env:
         GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
@@ -43,6 +39,10 @@ jobs:
         echo $GOOGLE_APPLICATION_CREDENTIALS | base64 --decode > /tmp/gcloud-key.json
         gcloud auth activate-service-account --key-file /tmp/gcloud-key.json
         gcloud auth configure-docker
+
+    - name: Build Docker image
+      run: |
+        docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/flask-api:latest .
 
     - name: Push Docker image to GCR
       run: |
