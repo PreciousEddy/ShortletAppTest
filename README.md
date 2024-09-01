@@ -131,10 +131,6 @@ This project sets up a Flask API application using Docker and deploys it on Kube
   kubectl logs -f <pod-name> -n <namespace>
   ```
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## Acknowledgments
 
 - Google Cloud Platform
@@ -142,5 +138,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Docker
 
 ```
-
-Feel free to customize this README to better suit your specific project setup and requirements!
