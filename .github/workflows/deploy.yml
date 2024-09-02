@@ -21,7 +21,14 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        pip install -r Flask-Api\api\requirements.txt
+
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v0.2.0
+      with:
+        version: 'latest'
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
 
     - name: Install Docker
       run: |
@@ -31,6 +38,9 @@ jobs:
         sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
         sudo apt-get update
         sudo apt-get install -y docker-ce
+
+    - name: Authenticate Docker to Google Container Registry
+      run: gcloud auth configure-docker
 
     - name: Authenticate with GCP
       run: |
@@ -46,9 +56,34 @@ jobs:
       run: |
         docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/flask-api:latest
 
+    - name: Initialize Terraform
+      run: terraform init
+
+    - name: Plan Terraform
+      run: terraform plan -var="GCP_SA_KEY=${{ secrets.GCP_SA_KEY }}" -out=tfplan
+
+    - name: Apply Terraform
+      run: terraform apply -auto-approve tfplan
+
     - name: Deploy to GKE
       run: |
-        gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} --zone ${GKE_ZONE} --project ${GCP_PROJECT_ID}
+        gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} --zone ${GKE_ZONE} --project ${{ secrets.GCP_PROJECT_ID }}
         kubectl apply -f k8s/deployment.yaml
         kubectl apply -f k8s/service.yaml
         kubectl apply -f k8s/ingress.yaml
+
+    - name: Retrieve External IP
+      id: get-ip
+      run: |
+        external_ip=""
+        while [ -z $external_ip ]; do
+          echo "Waiting for external IP..."
+          external_ip=$(kubectl get svc flask-api -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+          [ -z "$external_ip" ] && sleep 10
+        done
+        echo "::set-output name=external_ip::$external_ip"
+
+    - name: Verify API
+      run: |
+        external_ip=${{ steps.get-ip.outputs.external_ip }}
+        curl http://$external_ip/time
