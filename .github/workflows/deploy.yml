@@ -57,13 +57,19 @@ jobs:
         docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/flask-api:latest
 
     - name: Initialize Terraform
-      run: terraform init
+      run: |
+        cd Flask-Api/terraform
+        terraform init
 
     - name: Plan Terraform
-      run: terraform plan -var="GCP_SA_KEY=${{ secrets.GCP_SA_KEY }}" -out=tfplan
+      run: |
+        cd Flask-Api/terraform
+        terraform plan -var="GCP_SA_KEY=${{ secrets.GCP_SA_KEY }}" -out=tfplan
 
     - name: Apply Terraform
-      run: terraform apply -auto-approve tfplan
+      run: |
+        cd Flask-Api/terraform
+        terraform apply -auto-approve tfplan
 
     - name: Deploy to GKE
       run: |
