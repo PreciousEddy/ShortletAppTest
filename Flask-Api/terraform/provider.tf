@@ -1,7 +1,7 @@
 provider "google" {
-  credentials = file .env/ecstatic-device-434214-c6-2d196b017ad3.json
-  project     = "<your-project-id>"
-  region      = "us-central1"
+  credentials = var.GCP_SA_KEY_PATH
+  project     = var.project_id
+  region      = var.region
 }
 
 provider "kubernetes" {
@@ -9,3 +9,6 @@ provider "kubernetes" {
   token                  = data.google_client_config.default.access_token
   cluster_ca_certificate = base64decode(google_container_cluster.primary.master_auth.0.cluster_ca_certificate)
 }
+
+# Add the google_client_config data source
+data "google_client_config" "default" {}

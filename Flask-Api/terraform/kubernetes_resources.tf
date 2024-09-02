@@ -29,9 +29,8 @@ resource "kubernetes_deployment" "api_deployment" {
       spec {
         container {
           name  = "flask-api"
-          image = "gcr.io/${ecstatic-device-434214-c6}/flask-time-api:latest"
+          image = "gcr.io/ecstatic-device-434214-c6/flask-time-api:latest"  # Corrected the image reference
           
-          # Correcting the port block
           port {
             container_port = 5000
           }
