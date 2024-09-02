@@ -9,7 +9,7 @@ variable "region" {
   default     = "us-central1"
 }
 
-variable "GCP_SA_KEY_PATH" {
+variable "GCP_SA_KEY" {
   description = "Service account key"
   type        = string
   sensitive   = true

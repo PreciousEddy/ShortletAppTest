@@ -64,7 +64,7 @@ jobs:
     - name: Plan Terraform
       run: |
         cd Flask-Api/terraform
-        terraform plan -var="GCP_SA_KEY=${{ secrets.GCP_SA_KEY }}" -out=tfplan
+        terraform plan -var="project_id=${{ secrets.GCP_PROJECT_ID }}" -var="GCP_SA_KEY=${{ secrets.GCP_SA_KEY }}" -out=tfplan
 
     - name: Apply Terraform
       run: |
