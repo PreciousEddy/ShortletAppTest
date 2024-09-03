@@ -42,7 +42,7 @@ jobs:
     - name: Authenticate Docker to Google Container Registry
       run: gcloud auth configure-docker
 
-    - name: Authenticate with GCP
+    - name: Authenticate with GCP and save service account key to file
       run: |
         echo "${{ secrets.GCP_SA_KEY }}" | base64 --decode > /tmp/gcloud-key.json
         gcloud auth activate-service-account --key-file /tmp/gcloud-key.json
@@ -60,20 +60,22 @@ jobs:
       run: |
          cd Flask-Api/terraform
          terraform init
+      env:
+        GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcloud-key.json
 
     - name: Plan Terraform
       run: |
          cd Flask-Api/terraform
          terraform plan -var="project_id=${{ secrets.GCP_PROJECT_ID }}" -var="GCP_SA_KEY=${{ secrets.GCP_SA_KEY }}" -out=tfplan
       env:
-           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
+        GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcloud-key.json
 
     - name: Apply Terraform
       run: |
            cd Flask-Api/terraform
            terraform apply -auto-approve tfplan
       env:
-           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
+        GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcloud-key.json
 
     - name: Deploy to GKE
       run: |
