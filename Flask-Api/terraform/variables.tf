@@ -14,3 +14,13 @@ variable "GCP_SA_KEY" {
   type        = string
   sensitive   = true
 }
+
+variable "instance_id" {
+  description = "The ID of the instance to monitor"
+  type        = string
+}
+
+variable "instance_zone" {
+  description = "The zone of the instance to monitor"
+  type        = string
+}
