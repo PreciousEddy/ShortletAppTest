@@ -46,7 +46,7 @@ jobs:
       run: |
         echo "${{ secrets.GCP_SA_KEY }}" | base64 --decode > /tmp/gcloud-key.json
         gcloud auth activate-service-account --key-file /tmp/gcloud-key.json
-        gcloud auth application-default login --key-file=/tmp/gcloud-key.json
+        gcloud auth configure-docker
 
     - name: Build Docker image
       run: |
@@ -57,19 +57,13 @@ jobs:
         docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/flask-api:latest
 
     - name: Initialize Terraform
-      run: |
-        cd Flask-Api/terraform
-        terraform init
+      run: terraform init
 
     - name: Plan Terraform
-      run: |
-        cd Flask-Api/terraform
-        terraform plan -var="project_id=${{ secrets.GCP_PROJECT_ID }}" -var="GCP_SA_KEY=${{ secrets.GCP_SA_KEY }}" -out=tfplan
+      run: terraform plan -var="GCP_SA_KEY=${{ secrets.GCP_SA_KEY }}" -out=tfplan
 
     - name: Apply Terraform
-      run: |
-        cd Flask-Api/terraform
-        terraform apply -auto-approve tfplan
+      run: terraform apply -auto-approve tfplan
 
     - name: Deploy to GKE
       run: |
