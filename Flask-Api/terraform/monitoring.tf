@@ -4,7 +4,7 @@ resource "google_monitoring_uptime_check_config" "api_uptime_check" {
   period       = "60s"
 
   http_check {
-    path = "/"
+    path = "/time"
     port = "80"
   }
 
