@@ -11,7 +11,7 @@ resource "kubernetes_deployment" "api_deployment" {
   }
 
   spec {
-    replicas = 2
+    replicas = 1
 
     selector {
       match_labels = {
@@ -29,7 +29,7 @@ resource "kubernetes_deployment" "api_deployment" {
       spec {
         container {
           name  = "flask-api"
-          image = "gcr.io/flaskapi-434522/flask-time-api:latest"  # Corrected the image reference
+          image = "gcr.io/assessment-434523/flask-time-api:latest"  # Corrected the image reference
           
           port {
             container_port = 5000

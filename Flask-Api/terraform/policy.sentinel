@@ -1,0 +1,8 @@
+import "tfplan/v2" as tfplan
+
+main = rule {
+  all tfplan.resource_changes as rc {
+    rc.type == "google_compute_firewall" and
+    rc.change.after.allow[0].ports contains "22"
+  }
+}
