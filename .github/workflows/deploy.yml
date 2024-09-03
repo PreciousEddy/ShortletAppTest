@@ -69,13 +69,17 @@ jobs:
          terraform destroy -auto-approve
       env:
         GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcloud-key.json
+        TF_VAR_project_id: ${{ secrets.GCP_PROJECT_ID }}
+        TF_VAR_GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
 
     - name: Plan Terraform
       run: |
          cd Flask-Api/terraform
-         terraform plan -var="project_id=${{ secrets.GCP_PROJECT_ID }}" -var="GCP_SA_KEY=${{ secrets.GCP_SA_KEY }}" -out=tfplan
+         terraform plan -out=tfplan
       env:
         GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcloud-key.json
+        TF_VAR_project_id: ${{ secrets.GCP_PROJECT_ID }}
+        TF_VAR_GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
 
     - name: Apply Terraform
       run: |
@@ -83,6 +87,8 @@ jobs:
            terraform apply -auto-approve tfplan
       env:
         GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcloud-key.json
+        TF_VAR_project_id: ${{ secrets.GCP_PROJECT_ID }}
+        TF_VAR_GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
 
     - name: Deploy to GKE
       run: |
