@@ -61,6 +61,10 @@ jobs:
         cd Flask-Api/terraform
         terraform init
 
+    - name: Authenticate Application Default Credentials
+      run: |
+        gcloud auth application-default login --key-file=/tmp/gcloud-key.json
+
     - name: Plan Terraform
       run: |
         cd Flask-Api/terraform

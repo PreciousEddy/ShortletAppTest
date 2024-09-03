@@ -1,5 +1,6 @@
-provider "google" {
-  credentials = base64decode(var.GCP_SA_KEY)
+provider "google-beta" {
+  # credentials = var.GCP_SA_KEY
+  
   project     = var.project_id
   region      = var.region
 }
