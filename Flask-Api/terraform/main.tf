@@ -10,13 +10,24 @@ resource "google_compute_subnetwork" "subnet" {
   ip_cidr_range = "10.0.0.0/16"
   region        = var.region
   network       = google_compute_network.vpc_network.id
+
+  lifecycle {
+    prevent_destroy = true
+  }
+  
 }
 
 # Define the Static IP Address
 resource "google_compute_address" "api_address" {
   name   = "api-address"
   region = var.region
+
+  lifecycle {
+    prevent_destroy = true
+  }
+
 }
+
 
 
 
