@@ -86,6 +86,3 @@ This README provides a concise guide to setting up and deploying your API on GCP
 
 ---
 
-© 2024 edmundprecious23@gmail.com
-
----
