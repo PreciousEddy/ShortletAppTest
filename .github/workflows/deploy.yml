@@ -65,12 +65,16 @@ jobs:
       run: |
          cd Flask-Api/terraform
          terraform plan -var="project_id=${{ secrets.GCP_PROJECT_ID }}" -var="GCP_SA_KEY=${{ secrets.GCP_SA_KEY }}" -out=tfplan
+      env:
+           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
 
     - name: Apply Terraform
       run: |
-        cd Flask-Api/terraform
-        terraform apply -auto-approve tfplan
-        
+           cd Flask-Api/terraform
+           terraform apply -auto-approve tfplan
+      env:
+           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
+
     - name: Deploy to GKE
       run: |
         gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} --zone ${GKE_ZONE} --project ${{ secrets.GCP_PROJECT_ID }}

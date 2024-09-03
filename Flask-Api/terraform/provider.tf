@@ -1,6 +1,5 @@
-provider "google-beta" {
-  # credentials = var.GCP_SA_KEY
-  
+provider "google" {
+  credentials = ${{ secrets.GCP_SA_KEY }}
   project     = var.project_id
   region      = var.region
 }
