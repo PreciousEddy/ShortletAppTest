@@ -1,140 +1,91 @@
-# Flask API with Kubernetes and Google Cloud
+# GCP Infrastructure Setup and API Deployment
 
-## Project Overview
-
-This project sets up a Flask API application using Docker and deploys it on Kubernetes. It includes integration with Google Cloud Platform (GCP) for container registry and deployment.
+This project demonstrates how to develop a simple API, containerize it using Docker, and deploy it to a Google Kubernetes Engine (GKE) cluster using Terraform. The setup includes network security configurations and a CI/CD pipeline using GitHub Actions.
 
 ## Prerequisites
 
-- **Docker**: To build and manage container images.
-- **Kubernetes**: For container orchestration.
-- **Google Cloud SDK**: For interacting with GCP services.
-- **kubectl**: Command-line tool for Kubernetes.
-- **Terraform**: For Infrastructure as Code (IaC) if using for Kubernetes deployment.
-- **VS Code**: (Optional) for development and configuration.
-
-## Project Structure
-
-- `Flask-Api/`
-  - `api/` - Contains the Flask application code and Dockerfile.
-  - `kubernetes/` - Contains Kubernetes manifests and configurations.
-  - `terraform/` - Contains Terraform configurations for infrastructure setup (optional).
+- Google Cloud Platform (GCP) account
+- Terraform installed
+- Docker installed
+- GitHub account
+- gcloud CLI installed and authenticated
+- Service Account key file for GCP
 
 ## Setup Instructions
 
-### 1. Configure Google Cloud
+### 1. Clone the Repository
 
-1. **Set up a Google Cloud project** and enable the required APIs (e.g., Kubernetes Engine API, Artifact Registry API).
-2. **Create a service account** with roles: `Kubernetes Engine Developer`, `Artifact Registry Admin`, and `Viewer`.
+Clone the repository to your local machine:
 
-   ```bash
-   gcloud iam service-accounts create <SA_NAME> --display-name "Service Account"
-   gcloud projects add-iam-policy-binding <PROJECT_ID> \
-       --member "serviceAccount:<SA_NAME>@<PROJECT_ID>.iam.gserviceaccount.com" \
-       --role "roles/artifactregistry.admin"
-   gcloud projects add-iam-policy-binding <PROJECT_ID> \
-       --member "serviceAccount:<SA_NAME>@<PROJECT_ID>.iam.gserviceaccount.com" \
-       --role "roles/container.developer"
-   gcloud projects add-iam-policy-binding <PROJECT_ID> \
-       --member "serviceAccount:<SA_NAME>@<PROJECT_ID>.iam.gserviceaccount.com" \
-       --role "roles/viewer"
-   ```
-
-3. **Generate a JSON key file** for the service account:
-
-   ```bash
-   gcloud iam service-accounts keys create ~/key.json \
-       --iam-account <SA_NAME>@<PROJECT_ID>.iam.gserviceaccount.com
-   ```
-
-4. **Authenticate Docker to Google Container Registry (GCR)**:
-
-   ```bash
-   gcloud auth configure-docker
-   ```
-
-### 2. Build and Push Docker Image
-
-1. Navigate to the directory containing your Dockerfile:
-
-   ```bash
-   cd Flask-Api/api
-   ```
-
-2. Build the Docker image:
-
-   ```bash
-   docker build -t flask-api .
-   ```
-
-3. Push the Docker image to Google Container Registry:
-
-   ```bash
-   docker tag flask-api gcr.io/<PROJECT_ID>/flask-api:latest
-   docker push gcr.io/<PROJECT_ID>/flask-api:latest
-   ```
-
-### 3. Deploy to Kubernetes
-
-1. **Create a Kubernetes cluster** in Google Cloud:
-
-   ```bash
-   gcloud container clusters create <CLUSTER_NAME> \
-       --zone <ZONE> --num-nodes 3
-   ```
-
-2. **Configure kubectl to use your new cluster**:
-
-   ```bash
-   gcloud container clusters get-credentials <CLUSTER_NAME> --zone <ZONE>
-   ```
-
-3. **Apply Kubernetes manifests**:
-
-   ```bash
-   kubectl apply -f kubernetes/
-   ```
-
-   Make sure your `kubernetes` directory contains the necessary YAML files for deployment, service, and ingress.
-
-### 4. Test the Deployment
-
-1. Get the Ingress address:
-
-   ```bash
-   kubectl get ingress -n <namespace>
-   ```
-
-2. Use `curl` to test the endpoint:
-
-   ```bash
-   curl -f http://<YOUR-INGRESS-ADDRESS>/time
-   ```
-
-## Configuration
-
-### GitHub Actions
-
-- Add your `GCP_SA_KEY` as a GitHub secret named `GCP_SA_KEY` in your repository settings.
-
-### Terraform (Optional)
-
-- Configure your Terraform files for the required GCP and Kubernetes resources if used.
-
-## Troubleshooting
-
-- Ensure Docker and kubectl are correctly configured.
-- Verify GCP IAM roles and permissions.
-- Check Kubernetes logs for deployment issues:
-
-  ```bash
-  kubectl logs -f <pod-name> -n <namespace>
-  ```
-
-## Acknowledgments
-
-- Google Cloud Platform
-- Kubernetes
-- Docker
-
+```sh
+git clone https://github.com/PreciousEddy/ShortletAppTest.git
+cd ShortletAppTest
 ```
+
+### 2. Set Environment Variables
+
+Set the necessary environment variables:
+
+```sh
+export GCP_SA_KEY_PATH="/path/to/your/service-account-key.json"
+export GCP_PROJECT_ID="your-gcp-project-id"
+```
+
+### 3. Initialize and Apply Terraform
+
+Initialize Terraform and apply the configuration:
+
+```sh
+terraform init
+terraform plan -var="GCP_SA_KEY_PATH=$GCP_SA_KEY_PATH" -out=tfplan
+terraform apply tfplan
+```
+
+### 4. Verify the API
+
+Retrieve the external IP of the deployed service and verify the API:
+
+```sh
+external_ip=$(kubectl get svc flask-api -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+curl http://$external_ip/time
+```
+
+## CI/CD Pipeline
+
+The project includes a GitHub Actions workflow that automates the deployment process. The workflow:
+
+- Builds and pushes the Docker image to Google Container Registry (GCR).
+- Provisions the infrastructure using Terraform.
+- Deploys the API to the GKE cluster.
+- Verifies the API endpoint.
+
+## Network Security
+
+The setup includes a NAT gateway and firewall rules to manage and secure outbound traffic from the GKE cluster.
+
+---
+
+## How to get the Service Account Key
+
+Generate the Service Account Key:
+
+1. Go to the Google Cloud Console.
+2. Navigate to **IAM & Admin > Service Accounts**.
+3. Select your project.
+4. Click on the **Create Service Account** button.
+5. Fill in the service account details and click **Create**.
+6. Assign the necessary roles to the service account (e.g., Editor, Viewer, or specific roles like Kubernetes Engine Admin).
+7. Click **Continue** and then **Done**.
+8. Find the newly created service account in the list, click on the three dots on the right, and select **Manage keys**.
+9. Click on **Add Key > Create New Key**.
+10. Choose **JSON** and click **Create**. This will download the key file to your computer.
+
+---
+
+This README provides a concise guide to setting up and deploying your API on GCP using Terraform, along with a CI/CD pipeline using GitHub Actions.
+
+---
+
+© 2024 edmundprecious23@gmail.com
+
+---
