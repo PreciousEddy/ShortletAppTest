@@ -63,6 +63,13 @@ jobs:
       env:
         GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcloud-key.json
 
+    - name: Destroy existing resources
+      run: |
+         cd Flask-Api/terraform
+         terraform destroy -auto-approve
+      env:
+        GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcloud-key.json
+
     - name: Plan Terraform
       run: |
          cd Flask-Api/terraform
