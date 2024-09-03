@@ -1,16 +1,10 @@
-provider "google" {
-  credentials = var.GCP_SA_KEY
-  project     = var.project_id
-  region      = var.region
-}
-
 resource "google_monitoring_uptime_check_config" "api_uptime_check" {
   display_name = "API Uptime Check"
   timeout      = "10s"
   period       = "60s"
 
   http_check {
-    path = "/time"
+    path = "/"
     port = "80"
   }
 
