@@ -84,5 +84,3 @@ Generate the Service Account Key:
 
 This README provides a concise guide to setting up and deploying your API on GCP using Terraform, along with a CI/CD pipeline using GitHub Actions.
 
----
-
