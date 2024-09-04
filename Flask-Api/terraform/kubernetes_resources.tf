@@ -70,7 +70,7 @@ resource "kubernetes_ingress" "api_ingress" {
     rule {
       http {
         path {
-          path     = "/"
+          path     = "flask-api/flask-api-ingress"
           path_type = "Prefix"
           backend {
             service {
