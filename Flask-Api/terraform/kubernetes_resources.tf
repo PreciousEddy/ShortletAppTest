@@ -70,9 +70,15 @@ resource "kubernetes_ingress" "api_ingress" {
     rule {
       http {
         path {
+          path     = "/"
+          path_type = "Prefix"
           backend {
-            service_name = kubernetes_service.api_service.metadata[0].name
-            service_port = 80
+            service {
+              name = kubernetes_service.api_service.metadata[0].name
+              port {
+                number = 80
+              }
+            }
           }
         }
       }
