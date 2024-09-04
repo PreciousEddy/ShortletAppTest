@@ -56,20 +56,23 @@ jobs:
       run: |
         docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/flask-api:latest
 
-    - name: Initialize Terraform
-      run: |
-         cd Flask-Api/terraform
-         terraform init -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}" -backend-config="prefix=terraform/state"
-      env:
-        GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcloud-key.json
     
     - name: Force Unlock Terraform State
       run: |
        terraform force-unlock 1725410253935316
        continue-on-error:true
       env:
-        GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcloud-key.json      
+        GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcloud-key.json  
+
+
+    - name: Initialize Terraform
+      run: |
+         cd Flask-Api/terraform
+         terraform init -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}" -backend-config="prefix=terraform/state"
+      env:
+        GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcloud-key.json
      
+
     - name: Plan Terraform
       run: |
          cd Flask-Api/terraform
@@ -78,6 +81,7 @@ jobs:
         GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcloud-key.json
         TF_VAR_project_id: ${{ secrets.GCP_PROJECT_ID }}
         TF_VAR_GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        
 
     - name: Apply Terraform
       run: |
