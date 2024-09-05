@@ -96,12 +96,41 @@ jobs:
       id: get-ip
       run: |
         external_ip=""
-        while [ -z $external_ip ]; do
-          echo "Waiting for external IP..."
-          external_ip=$(kubectl get svc flask-api -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-          [ -z "$external_ip" ] && sleep 10
+        retry_count=0
+        max_retries=30  # Adjust the number of retries as needed
+        service_exists=false
+
+        while [ $retry_count -lt $max_retries ]; do
+          # Check if the service exists
+          if kubectl get svc flask-api; then
+            service_exists=true
+            break
+          else
+            echo "Service 'flask-api' not found. Retrying in 10 seconds..."
+            sleep 10
+            retry_count=$((retry_count + 1))
+          fi
         done
-        echo "::set-output name=external_ip::$external_ip"
+
+        if [ "$service_exists" = true ]; then
+          retry_count=0
+          while [ -z $external_ip ] && [ $retry_count -lt $max_retries ]; do
+            echo "Waiting for external IP..."
+            external_ip=$(kubectl get svc flask-api -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+            [ -z "$external_ip" ] && sleep 10
+            retry_count=$((retry_count + 1))
+          done
+
+          if [ -z $external_ip ]; then
+            echo "Failed to retrieve the external IP after multiple attempts."
+            exit 1
+          fi
+
+          echo "::set-output name=external_ip::$external_ip"
+        else
+          echo "Service 'flask-api' was not created after multiple retries."
+          exit 1
+        fi
 
     - name: Verify API
       run: |
