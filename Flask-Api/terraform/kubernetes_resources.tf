@@ -29,7 +29,7 @@ resource "kubernetes_deployment" "api_deployment" {
       spec {
         container {
           name  = "flask-api"
-          image = "gcr.io/assessment-434523/flask-time-api:latest"  # Corrected the image reference
+          image = "gcr.io/assessment-434523/flask-api:latest"  # Corrected the image reference
           
           port {
             container_port = 5000
@@ -60,28 +60,3 @@ resource "kubernetes_service" "api_service" {
   }
 }
 
-resource "kubernetes_ingress" "api_ingress" {
-  metadata {
-    name      = "flask-api-ingress"
-    namespace = kubernetes_namespace.app.metadata[0].name
-  }
-
-  spec {
-    rule {
-      http {
-        path {
-          path     = "flask-api/flask-api-ingress"
-          path_type = "Prefix"
-          backend {
-            service {
-              name = kubernetes_service.api_service.metadata[0].name
-              port {
-                number = 80
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}

@@ -56,7 +56,6 @@ jobs:
       run: |
         docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/flask-api:latest
 
-       
     - name: Initialize Terraform
       run: |
          cd Flask-Api/terraform
@@ -73,7 +72,6 @@ jobs:
         TF_VAR_project_id: ${{ secrets.GCP_PROJECT_ID }}
         TF_VAR_GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
 
-
     - name: Apply Terraform
       run: |
            cd Flask-Api/terraform
@@ -86,9 +84,9 @@ jobs:
     - name: Deploy to GKE
       run: |
         gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} --zone ${GKE_ZONE} --project ${{ secrets.GCP_PROJECT_ID }}
-        kubectl apply -f k8s/deployment.yaml
-        kubectl apply -f k8s/service.yaml
-        kubectl apply -f k8s/ingress.yaml
+        kubectl apply -f Flask-Api/terraform/k8s/deployment.yaml
+        kubectl apply -f Flask-Api/terraform/k8s/service.yaml
+        kubectl apply -f Flask-Api/terraform/k8s/ingress.yaml
 
     - name: Retrieve External IP
       id: get-ip
